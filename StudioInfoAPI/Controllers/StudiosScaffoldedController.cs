@@ -39,13 +39,13 @@ namespace StudioInfoAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Studio>> GetStudio(long id)
         {
-          if (_context.Studios == null)
+          if (_context.Studios == null) 
           {
               return NotFound();
           }
             var studio = await _context.Studios.FindAsync(id);
 
-            if (studio == null)
+            if (studio == null) // if specific studio is not available
             {
                 return NotFound();
             }
@@ -81,7 +81,7 @@ namespace StudioInfoAPI.Controllers
                 }
             }
 
-            return NoContent();
+      return NoContent();
         }
 
         // POST: api/StudiosScaffolded
