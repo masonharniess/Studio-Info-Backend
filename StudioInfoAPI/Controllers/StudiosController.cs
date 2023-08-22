@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudioInfoAPI.DbContexts;
 using StudioInfoAPI.Models;
@@ -42,7 +44,7 @@ namespace StudioInfoAPI.Controllers {
     }
 
     [HttpPost] // Creates a new studio
-    public async Task<ActionResult<Studio>> CreateStudio(Studio studio) {
+    public async Task<ActionResult<Studio>> PostStudio(Studio studio) {
 
       if (_context.Studios == null) {
         return NotFound(); // Entity set 'StudioContext.Studios' is null.
@@ -54,8 +56,8 @@ namespace StudioInfoAPI.Controllers {
       return CreatedAtAction(nameof(GetStudio), new { id = studio.Id }, studio);
     }
 
-    [HttpPut("{id}")] // Fully updates a studio
-    public async Task<ActionResult> UpdateStudio(long id, Studio studio) {
+    [HttpPut("{id}")] // Fully update a studio
+    public async Task<ActionResult> PutStudio(long id, Studio studio) {
       
       if (id != studio.Id) { 
         return BadRequest();
@@ -78,10 +80,39 @@ namespace StudioInfoAPI.Controllers {
       return NoContent();
     }
 
+    [HttpPatch("{id}")] // Partially update a studio
+    public async Task<ActionResult> PatchStudio([FromRoute] long id, [FromBody] JsonPatchDocument<Studio> patchDocument) {
+
+      var existingStudio = _context.Studios.FirstOrDefault(s => s.Id == id);
+
+      if (existingStudio == null) {
+        return NotFound();
+      }
+
+      patchDocument.ApplyTo(existingStudio);
+      
+      _context.Update(existingStudio);
+
+      try {
+        await _context.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException) {
+        if (!StudioExists(id)) {
+          return NotFound();
+        }
+        else {
+          throw;
+        }
+      }
+
+      
+
+      return NoContent();
+    }
+
     private bool StudioExists(long id) {
       return (_context.Studios?.Any(e => e.Id == id)).GetValueOrDefault();
     }
-
 
   }
 }
