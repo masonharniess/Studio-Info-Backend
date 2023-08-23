@@ -1,5 +1,4 @@
-﻿using Azure;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudioInfoAPI.DbContexts;
@@ -63,7 +62,8 @@ namespace StudioInfoAPI.Controllers {
         return BadRequest();
       }
 
-      _context.Entry(studio).State = EntityState.Modified; // inform EF's change tracker that studio has been modified and needs updating in the database when changes are saved.
+      // inform EF's change tracker that studio has been modified and needs updating in the database when changes are saved.
+      _context.Entry(studio).State = EntityState.Modified; 
 
       try {
         await _context.SaveChangesAsync();
@@ -83,6 +83,7 @@ namespace StudioInfoAPI.Controllers {
     [HttpPatch("{id}")] // Partially update a studio
     public async Task<ActionResult> PatchStudio([FromRoute] long id, [FromBody] JsonPatchDocument<Studio> patchDocument) {
 
+      // fetch the existing studio from the database with the provided id
       var existingStudio = _context.Studios.FirstOrDefault(s => s.Id == id);
 
       if (existingStudio == null) {
@@ -91,9 +92,11 @@ namespace StudioInfoAPI.Controllers {
 
       patchDocument.ApplyTo(existingStudio);
       
+      // mark studio as modified in the EF context
       _context.Update(existingStudio);
 
       try {
+        // saves changes made to the database
         await _context.SaveChangesAsync();
       }
       catch (DbUpdateConcurrencyException) {
@@ -104,8 +107,6 @@ namespace StudioInfoAPI.Controllers {
           throw;
         }
       }
-
-      
 
       return NoContent();
     }
