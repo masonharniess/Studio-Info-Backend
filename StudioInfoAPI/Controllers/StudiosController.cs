@@ -57,17 +57,17 @@ namespace StudioInfoAPI.Controllers {
 
     [HttpPut("{id}")] // Fully update a studio
     public async Task<ActionResult> PutStudio(long id, Studio studio) {
-      
-      if (id != studio.Id) { 
+
+      if (id != studio.Id) {
         return BadRequest();
       }
 
       // inform EF's change tracker that studio has been modified and needs updating in the database when changes are saved.
-      _context.Entry(studio).State = EntityState.Modified; 
+      _context.Entry(studio).State = EntityState.Modified;
 
       try {
         await _context.SaveChangesAsync();
-      } 
+      }
       catch (DbUpdateConcurrencyException) {
         if (!StudioExists(id)) {
           return NotFound();
@@ -91,7 +91,7 @@ namespace StudioInfoAPI.Controllers {
       }
 
       patchDocument.ApplyTo(existingStudio);
-      
+
       // mark studio as modified in the EF context
       _context.Update(existingStudio);
 
@@ -107,6 +107,21 @@ namespace StudioInfoAPI.Controllers {
           throw;
         }
       }
+
+      return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteStudio(long id) {
+
+      var studio = await _context.Studios.FindAsync(id);
+
+      if (studio == null) {
+        return NotFound();
+      }
+
+      _context.Studios.Remove(studio);
+      await _context.SaveChangesAsync();
 
       return NoContent();
     }
