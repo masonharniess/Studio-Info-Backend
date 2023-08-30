@@ -5,7 +5,7 @@ using StudioInfoAPI.Models;
 namespace StudioInfoAPI.DbContexts
 {
   // The database context is the main class that coordinates Entity Framework functionality for a data model.
-  public class StudioContext : DbContext
+  public class StudioContext : DbContext 
   {
     // The options object provides configuration information for how the context should be set up. The : base(options) part calls the constructor of the base DbContext class, passing in the provided options.
     public StudioContext(DbContextOptions<StudioContext> options) : base(options) { }

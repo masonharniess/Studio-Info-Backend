@@ -19,7 +19,8 @@ namespace StudioInfoAPI.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class StudiosController : ControllerBase {
+  public class StudiosController : ControllerBase 
+  {
     private readonly StudioContext _context;
     private readonly IMapper _mapper;
 
@@ -33,7 +34,8 @@ namespace StudioInfoAPI.Controllers
     [HttpGet] // GETs collection of studios
     public async Task<ActionResult<IEnumerable<StudioModel>>> GetStudios()
     {
-      if (_context.Studios == null) {
+      if (_context.Studios == null) 
+      {
         return NotFound();
       }
 
@@ -51,20 +53,21 @@ namespace StudioInfoAPI.Controllers
       List<StudioEntity> studios = await _context.Studios.ToListAsync();
 
       return Ok(_mapper.Map<List<StudioModel>>(studios));
-
     }
 
     [HttpGet("{id}")] // GETs a specific studio
     public async Task<ActionResult<StudioModel>> GetStudio(long id)
     {
 
-      if (_context.Studios == null) { // if collection is not available.
+      if (_context.Studios == null) 
+      { // if collection is not available.
         return NotFound();
       }
 
       StudioEntity? studioEntity = await _context.Studios.FindAsync(id);
 
-      if (studioEntity == null) { // if specific studio is not available.
+      if (studioEntity == null) 
+      { // if specific studio is not available.
         return NotFound();
       }
 
@@ -75,7 +78,8 @@ namespace StudioInfoAPI.Controllers
     public async Task<ActionResult<StudioModel>> PostStudio([FromBody] StudioModel studioModel)
     {
 
-      if (_context.Studios == null) {
+      if (_context.Studios == null) 
+      {
         return NotFound(); // Entity set 'StudioContext.Studios' is null.
       }
 
@@ -91,23 +95,27 @@ namespace StudioInfoAPI.Controllers
     public async Task<ActionResult> PutStudio(long id, [FromBody] StudioModel studio)
     {
 
-      if (id != studio.Id) {
+      if (id != studio.Id) 
+      {
         return BadRequest();
       }
 
       StudioEntity studioEntity = _mapper.Map<StudioEntity>(studio);
 
-
       _context.Entry(studioEntity).State = EntityState.Modified; // inform EF's change tracker that studio has been modified and needs updating in the database when changes are saved.
 
-      try {
+      try 
+      {
         await _context.SaveChangesAsync();
       }
-      catch (DbUpdateConcurrencyException) {
-        if (!StudioExists(id)) {
+      catch (DbUpdateConcurrencyException) 
+      {
+        if (!StudioExists(id)) 
+        {
           return NotFound();
         }
-        else {
+        else 
+        {
           throw;
         }
       }
@@ -116,12 +124,13 @@ namespace StudioInfoAPI.Controllers
     }
 
     [HttpPatch("{id}")] // Partially update a studio
-    public async Task<ActionResult> PatchStudio([FromRoute] long id, [FromBody] JsonPatchDocument<StudioModel> patchDocument) {
-
+    public async Task<ActionResult> PatchStudio([FromRoute] long id, [FromBody] JsonPatchDocument<StudioModel> patchDocument) 
+    {
       // fetch the existing studio from the database with the provided id
       StudioEntity? existingStudioEntity = _context.Studios.FirstOrDefault(s => s.Id == id);
 
-      if (existingStudioEntity == null) {
+      if (existingStudioEntity == null) 
+      {
         return NotFound();
       }
 
@@ -129,7 +138,8 @@ namespace StudioInfoAPI.Controllers
 
       patchDocument.ApplyTo(existingStudioModel);
 
-      if (!ModelState.IsValid) {
+      if (!ModelState.IsValid) 
+      {
         return BadRequest(ModelState);
       }
 
@@ -138,15 +148,18 @@ namespace StudioInfoAPI.Controllers
       // mark studio as modified in the EF context
       _context.Update(existingStudioEntity);
 
-      try {
-        // saves changes made to the database
-        await _context.SaveChangesAsync();
+      try 
+      {
+        await _context.SaveChangesAsync(); // saves changes made to the database
       }
-      catch (DbUpdateConcurrencyException) {
-        if (!StudioExists(id)) {
+      catch (DbUpdateConcurrencyException) 
+      {
+        if (!StudioExists(id))
+        {
           return NotFound();
         }
-        else {
+        else 
+        {
           throw;
         }
       }
@@ -155,8 +168,8 @@ namespace StudioInfoAPI.Controllers
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteStudio(long id) {
-
+    public async Task<ActionResult> DeleteStudio(long id) 
+    {
       var studio = await _context.Studios.FindAsync(id);
 
       if (studio == null)
@@ -170,7 +183,8 @@ namespace StudioInfoAPI.Controllers
       return NoContent();
     }
 
-    private bool StudioExists(long id) {
+    private bool StudioExists(long id) 
+    {
       return (_context.Studios?.Any(e => e.Id == id)).GetValueOrDefault();
     }
   }
